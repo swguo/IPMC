@@ -12,3 +12,10 @@
 .paged-main .hero{margin-bottom:20px}.paged-main h1{font-size:clamp(28px,5vw,42px)}
 @media(max-width:900px){.topic-nav{grid-template-columns:repeat(5,minmax(0,1fr));padding:0 16px 12px}}
 @media(max-width:480px){.topic-nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0 12px 10px}.topic-nav button{font-size:13px;min-height:40px;padding:6px 4px}.paged-main{padding-top:18px}.paged-main .hero-date{font-size:16px}.top-inner{padding:8px 12px}}
+
+.route-tabs{display:flex;gap:8px;margin:16px 0 20px}.route-tabs button{flex:1;font-weight:650}.route-tabs button[aria-selected=true]{background:var(--ink);color:white;border-color:var(--ink)}
+.route-flow{list-style:none;margin:22px 0;padding:0 0 0 18px;counter-reset:route}
+.route-flow li{position:relative;border-left:3px solid #a7bfac;padding:0 0 26px 30px;counter-increment:route}
+.route-flow li:last-child{border-left-color:transparent;padding-bottom:4px}
+.route-flow li::before{content:counter(route);position:absolute;left:-17px;top:-1px;width:30px;height:30px;display:grid;place-items:center;background:var(--ink);color:white;border:3px solid white;border-radius:50%;font-size:12px;font-weight:700}
+.route-flow strong{display:block;font-size:16px}.route-flow p{font-size:14px;color:var(--muted);margin:6px 0 0}.metro-operations{margin:22px 0}.metro-operations li{margin-bottom:12px;font-size:14px}.diagram-download{margin-top:16px;width:100%;font-weight:650;background:#eff5e5}#metro>.links{margin-top:16px}
