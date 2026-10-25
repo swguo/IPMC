@@ -34,7 +34,7 @@ node scripts/encrypt.mjs /private/content.html /private/dashboard.password
 node tests/validate.mjs
 ```
 
-加密工具要求至少16字元密碼，完整密碼由私密檔讀取，不應放命令列。HTML會在解鎖後作為可信模板呈現，只可加入可信內容，外部文件文字需先HTML escape。更新發布時請同時遞增 `site/sw.js` 的快取版本。更換密碼後舊版密文及舊密碼仍可能存在Git歷史或其他裝置的離線快取；改密碼無法撤回曾經公開的版本。
+加密工具預設要求至少16字元密碼；若明確選用較短密碼，可加上 `--allow-short-password`（較容易遭離線猜測）。完整密碼由私密檔讀取，不應放命令列。HTML會在解鎖後作為可信模板呈現，只可加入可信內容，外部文件文字需先HTML escape。更新發布時請同時遞增 `site/sw.js` 的快取版本。更換密碼後舊版密文及舊密碼仍可能存在Git歷史或其他裝置的離線快取；改密碼無法撤回曾經公開的版本。
 
 ## 驗證
 
