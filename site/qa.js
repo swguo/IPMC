@@ -2,7 +2,7 @@
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=14',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=15',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -146,8 +146,8 @@ function sheetTabs(){
   decorate($('#shBody'));
   $('#shTabs').querySelectorAll('button').forEach(b => b.onclick = () => { st.sheetTab = b.dataset.k; sheetTabs(); $('#shBody').scrollTop = 0; });
 }
-function openSheet(){ sheetTabs(); $('#sheet').hidden = false; $('#scrim').hidden = false; $('#shClose').focus(); }
-function closeSheet(){ $('#sheet').hidden = true; $('#scrim').hidden = true; $('#fab').focus(); }
+function openSheet(){ sheetTabs(); $('#sheet').hidden = false; $('#scrim').hidden = false; $('.app').inert=true;$('#fab').inert=true;$('#shBody').scrollTop=0;$('#shClose').focus(); }
+function closeSheet(){ $('#sheet').hidden = true; $('#scrim').hidden = true; $('.app').inert=false;$('#fab').inert=false;$('#fab').focus(); }
 
 /* wake lock */
 let wake = null;
@@ -194,6 +194,7 @@ root.querySelectorAll('.seg button').forEach(b => b.onclick = () => setLang(b.da
 $('#fab').onclick = openSheet; $('#shClose').onclick = closeSheet; $('#scrim').onclick = closeSheet;
 $('#wake').onclick = toggleWake;
 root.addEventListener('keydown', e => {
+  if(e.key==='Tab'&&!$('#sheet').hidden){const items=[...$('#sheet').querySelectorAll('button,a[href],input,[tabindex="0"]')].filter(el=>!el.disabled&&!el.hidden);const first=items[0],last=items.at(-1);if(e.shiftKey&&root.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&root.activeElement===last){e.preventDefault();first.focus()}}
   if (e.key === 'Escape'){ if (!$('#sheet').hidden) closeSheet(); else closeDetail(); }
   if (e.key === '/' && root.activeElement !== $('#q')){ e.preventDefault(); $('#q').focus(); }
 });

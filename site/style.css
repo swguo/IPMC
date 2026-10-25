@@ -29,3 +29,5 @@
 .check-group{border:0;margin:24px 0;padding:0;min-width:0}.check-group legend{font-size:17px;font-weight:700;margin-bottom:8px;padding:0}.check-progress{background:#eff5e5;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:650}
 
 .paged-main:has([data-topic-panel="qa"]:not([hidden])){max-width:1320px;padding:12px 16px}.topic-pages #qa{padding:0;overflow:hidden;height:calc(100dvh - var(--header-height,220px) - 28px);min-height:360px}#qa-host{height:100%;width:100%}.paged-main:has([data-topic-panel="qa"]:not([hidden]))>.footer{display:none}
+/* Let the QA viewport shrink on short screens without hiding sheet content. */
+.topic-pages #qa{min-height:0}
