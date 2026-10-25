@@ -23,3 +23,5 @@
 .question-card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;background:#f4f7f0}.question-card p{font-size:14px;margin:8px 0}#transfer h3{margin-top:26px}#transfer details{margin:16px 0}#transfer li{margin-bottom:8px}#transfer .route-flow li{margin-bottom:0}
 
 .route-png{margin:20px 0}.route-png .location-open{display:block;max-width:620px;margin:auto}.route-png .location-open img{height:auto;width:100%;max-height:none}.route-png figcaption{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}#location-viewer img{max-height:none;width:auto;max-width:100%}#location-viewer{width:min(850px,95vw);overflow:auto}#close-location{position:sticky;top:0;z-index:1;box-shadow:0 2px 10px #183b3c22}
+
+.conference-agenda p{display:grid;grid-template-columns:125px 1fr;gap:12px;padding:12px 0;margin:0;border-top:1px solid var(--line);font-size:14px}#talk h3{margin-top:24px}@media(max-width:480px){.conference-agenda p{grid-template-columns:110px 1fr;gap:8px}}
