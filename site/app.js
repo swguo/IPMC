@@ -1,4 +1,4 @@
-import {mountQA} from './qa.js?v=17';
+import {mountQA} from './qa.js?v=18';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, headerObserver;
@@ -16,7 +16,7 @@ function resetTimer(){clearTimeout(inactive);if(!dashboard.hidden) inactive=setT
 function storage(key,value){try{if(value===undefined)return localStorage.getItem(key);localStorage.setItem(key,value)}catch{return null}}
 function updateCheckProgress(){dashboard.querySelectorAll('[data-check-progress]').forEach(el=>{const checks=[...el.closest('.card').querySelectorAll('[data-check]')];el.textContent=`已完成 ${checks.filter(check=>check.checked).length} / ${checks.length} 項`})}
 function chooseDay(day){dashboard.querySelectorAll('[data-day]').forEach(el=>{const selected=el.dataset.day===day;el.setAttribute('aria-selected',String(selected));el.tabIndex=selected?0:-1});dashboard.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==day)}
-const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['qa','QA速查'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['transfer','轉機手冊'],['esim','上網'],['checklist','旅行清單'],['conference-checklist','會議清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
+const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['speech','演講稿'],['qa','QA速查'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['transfer','轉機手冊'],['esim','上網'],['checklist','旅行清單'],['conference-checklist','會議清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
 function setTopicMenu(expanded,focusPanel=false){
  const nav=$('#topic-menu'),toggle=$('#topic-menu-toggle');if(!nav||!toggle)return;
  nav.hidden=!expanded;toggle.setAttribute('aria-expanded',String(expanded));toggle.textContent=expanded?'收起選單 ▴':'顯示選單 ▾';
@@ -55,6 +55,14 @@ function initializeTopics(){
 
  chooseTopic(location.hash.slice(1),false);
 }
+function chooseSpeechPage(value){
+ const select=$('[data-speech-select]');if(!select)return;
+ const page=Number(value);const safe=Number.isInteger(page)&&page>=0&&page<=39?page:0;
+ select.value=String(safe);dashboard.querySelectorAll('[data-speech-page]').forEach(el=>el.hidden=el.dataset.speechPage!==String(safe));
+ $('#speech-progress').textContent=safe===0?'使用說明':safe+' / 39';
+ dashboard.querySelector('[data-speech-step="-1"]').disabled=safe===0;dashboard.querySelector('[data-speech-step="1"]').disabled=safe===39;
+ storage('trip-speech-page',String(safe));
+}
 function chooseRoute(id){
  dashboard.querySelectorAll('[data-route]').forEach(tab=>{const selected=tab.dataset.route===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1});
  dashboard.querySelectorAll('[data-route-panel]').forEach(panel=>panel.hidden=panel.dataset.routePanel!==id);
@@ -73,11 +81,11 @@ try{html=await decrypt(envelope,password)}catch{throw Error('PASSWORD')}
 }
 dashboard.innerHTML=html;$('#password').value='';gate.hidden=true;dashboard.hidden=false;$('#login-status').textContent='';
 dashboard.querySelectorAll('[data-check]').forEach(el=>el.checked=storage('trip-check-'+el.dataset.check)==='1');
-const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit'}).format(new Date());chooseDay(today.includes('10-30')||today.includes('10/30')?'30':today.includes('10-31')||today.includes('10/31')?'31':today.includes('11-01')||today.includes('11/01')?'01':'29');initializeTopics();if($('#qa-host'))qaController=mountQA($('#qa-host'),JSON.parse($('#qa-data').content.textContent),$('#qa-markup').content);updateCheckProgress();network();resetTimer();$('#lock').focus();
+const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit'}).format(new Date());chooseDay(today.includes('10-30')||today.includes('10/30')?'30':today.includes('10-31')||today.includes('10/31')?'31':today.includes('11-01')||today.includes('11/01')?'01':'29');initializeTopics();chooseSpeechPage(storage('trip-speech-page')||'0');if($('#qa-host'))qaController=mountQA($('#qa-host'),JSON.parse($('#qa-data').content.textContent),$('#qa-markup').content);updateCheckProgress();network();resetTimer();$('#lock').focus();
 }catch(err){if(!dashboard.hidden){lock();$('#login-status').textContent='解鎖後載入失敗，請重新整理網站。';return}$('#login-status').textContent=err.message==='OFFLINE_PASSWORD'?'離線資料可能是舊版本。請連網更新後再用新密碼解鎖。':err.message==='FETCH'?'無法讀取旅程，請確認網路或先在線上開啟一次。':err.message==='CRYPTO'?'請使用 HTTPS 網址及支援的瀏覽器。':'密碼不正確，或加密資料已損壞。請重新輸入。'}finally{$('#unlock-button').disabled=false}});
-dashboard.addEventListener('click',async e=>{const viewer=$('#location-viewer');const imageButton=e.target.closest('.location-open');if(imageButton&&viewer){const source=imageButton.querySelector('img');viewer.querySelector('img').src=source.src;viewer.querySelector('img').alt=source.alt;viewer.querySelector('p').textContent=source.alt;viewer.showModal();return}if(e.target.id==='close-location'){viewer?.close();return}const target=e.target.closest('button');if(!target)return;if(target.id==='lock')return lock();if(target.id==='topic-menu-toggle'){setTopicMenu(target.getAttribute('aria-expanded')!=='true');return}if(target.dataset.topic){chooseTopic(target.dataset.topic);setTopicMenu(false,true);return}if(target.dataset.route)return chooseRoute(target.dataset.route);if(target.dataset.day)return chooseDay(target.dataset.day);if(target.dataset.copy){try{await navigator.clipboard.writeText(target.dataset.copy);toast('已複製')}catch{toast('無法自動複製，請長按資料複製')}}});
+dashboard.addEventListener('click',async e=>{const viewer=$('#location-viewer');const imageButton=e.target.closest('.location-open');if(imageButton&&viewer){const source=imageButton.querySelector('img');viewer.querySelector('img').src=source.src;viewer.querySelector('img').alt=source.alt;viewer.querySelector('p').textContent=source.alt;viewer.showModal();return}if(e.target.id==='close-location'){viewer?.close();return}const target=e.target.closest('button');if(!target)return;if(target.id==='lock')return lock();if(target.id==='topic-menu-toggle'){setTopicMenu(target.getAttribute('aria-expanded')!=='true');return}if(target.dataset.topic){chooseTopic(target.dataset.topic);setTopicMenu(false,true);return}if(target.dataset.route)return chooseRoute(target.dataset.route);if(target.dataset.speechStep){chooseSpeechPage(Number($('[data-speech-select]').value)+Number(target.dataset.speechStep));window.scrollTo({top:0,behavior:'instant'});return}if(target.dataset.day)return chooseDay(target.dataset.day);if(target.dataset.copy){try{await navigator.clipboard.writeText(target.dataset.copy);toast('已複製')}catch{toast('無法自動複製，請長按資料複製')}}});
 dashboard.addEventListener('keydown',e=>{if(!e.target.matches('[data-day]')||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...dashboard.querySelectorAll('[data-day]')];let i=tabs.indexOf(e.target);i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;chooseDay(tabs[i].dataset.day);tabs[i].focus()});
-dashboard.addEventListener('change',e=>{if(e.target.dataset.check){storage('trip-check-'+e.target.dataset.check,e.target.checked?'1':'0');updateCheckProgress()}});
+dashboard.addEventListener('change',e=>{if(e.target.matches('[data-speech-select]'))chooseSpeechPage(e.target.value);if(e.target.dataset.check){storage('trip-check-'+e.target.dataset.check,e.target.checked?'1':'0');updateCheckProgress()}});
 for(const type of ['pointerdown','keydown','scroll'])document.addEventListener(type,resetTimer,{passive:true});
 window.addEventListener('online',network);window.addEventListener('offline',network);window.addEventListener('pagehide',lock);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{});
