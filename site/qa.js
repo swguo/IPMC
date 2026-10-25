@@ -2,7 +2,7 @@
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=16',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=17',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -57,7 +57,7 @@ function tags(it){
 function renderPages(){
   const has = new Set(D.items.flatMap(i => i.slides));
   const el = $('#pages'); el.innerHTML = '';
-  for (let p = 1; p <= 36; p++){
+  for (let p = 1; p <= 39; p++){
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = p; b.disabled = !has.has(p);
     b.setAttribute('aria-pressed', st.slide === p);
@@ -92,6 +92,7 @@ function decorate(root){
     else if (/^(不要說|Don't say)$/.test(k)) p.classList.add('dont');
     else if (/^(英文提問|Possible question|可能的問法|You may hear)$/.test(k)) p.classList.add('q');
     else if (/^(關鍵字|Keywords)$/.test(k)) p.hidden = true;
+    else if (/^(翻頁|Go to)$/.test(k)) p.classList.add('goto');
   });
 }
 function renderDetail(id){
@@ -126,7 +127,7 @@ function renderWelcome(){
       <div class="step"><b>1 · 聽</b><span>抓 2–3 個關鍵字</span><em>寫在紙上或打進搜尋</em></div>
       <div class="step"><b>2 · 停</b><span>停 2–3 秒</span><em>"That's a good question."</em></div>
       <div class="step"><b>3 · 確認</b><span>說出關鍵字確認</span><em>"You're asking about X, right?"</em></div>
-      <div class="step"><b>4 · 回答</b><span>結論＋一個數字</span><em>最多三句，翻到對應頁</em></div>
+      <div class="step"><b>4 · 回答</b><span>翻頁＋一句結論</span><em>用投影片上的現象說明，少念數字</em></div>
       <div class="step"><b>5 · 收尾</b><span>感謝＋未來或論文</span><em>"Does that answer your question?"</em></div>
     </div>
     <p class="count">左邊輸入關鍵字或點頁碼找題目。聽不懂時，按右下角「聽不懂？」。</p></div>`;

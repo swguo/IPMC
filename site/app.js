@@ -1,4 +1,4 @@
-import {mountQA} from './qa.js?v=16';
+import {mountQA} from './qa.js?v=17';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, headerObserver;
