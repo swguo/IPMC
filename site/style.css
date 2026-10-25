@@ -4,7 +4,7 @@
 
 /* Each topic is its own view; the entire navigation stays pinned above it. */
 .topbar{position:sticky;top:0;background:var(--paper);box-shadow:0 4px 16px #183b3c08}
-.topic-nav{max-width:1120px;margin:0 auto;padding:0 24px 12px;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;overflow:visible}
+.topic-nav{max-width:1120px;margin:0 auto;padding:0 24px 12px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;overflow:visible}
 .topic-nav button{padding:8px 4px;white-space:nowrap;font-size:14px;border-radius:10px;min-width:0}
 .topic-nav button[aria-selected=true]{background:var(--ink);border-color:var(--ink);color:white;font-weight:700}
 .paged-main{max-width:920px;padding-top:24px}.topic-pages .card{width:100%;margin-bottom:20px}
@@ -19,3 +19,5 @@
 .route-flow li:last-child{border-left-color:transparent;padding-bottom:4px}
 .route-flow li::before{content:counter(route);position:absolute;left:-17px;top:-1px;width:30px;height:30px;display:grid;place-items:center;background:var(--ink);color:white;border:3px solid white;border-radius:50%;font-size:12px;font-weight:700}
 .route-flow strong{display:block;font-size:16px}.route-flow p{font-size:14px;color:var(--muted);margin:6px 0 0}.metro-operations{margin:22px 0}.metro-operations li{margin-bottom:12px;font-size:14px}.diagram-download{margin-top:16px;width:100%;font-weight:650;background:#eff5e5}#metro>.links{margin-top:16px}
+
+.question-card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;background:#f4f7f0}.question-card p{font-size:14px;margin:8px 0}#transfer h3{margin-top:26px}#transfer details{margin:16px 0}#transfer li{margin-bottom:8px}#transfer .route-flow li{margin-bottom:0}

@@ -13,7 +13,7 @@ function lock(){clearTimeout(inactive);dashboard.replaceChildren();dashboard.hid
 function resetTimer(){clearTimeout(inactive);if(!dashboard.hidden) inactive=setTimeout(lock,10*60*1000)}
 function storage(key,value){try{if(value===undefined)return localStorage.getItem(key);localStorage.setItem(key,value)}catch{return null}}
 function chooseDay(day){dashboard.querySelectorAll('[data-day]').forEach(el=>{const selected=el.dataset.day===day;el.setAttribute('aria-selected',String(selected));el.tabIndex=selected?0:-1});dashboard.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==day)}
-const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['esim','上網'],['checklist','出發清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
+const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['transfer','轉機手冊'],['esim','上網'],['checklist','出發清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
 function chooseTopic(id,updateUrl=true){
  if(!topicDefinitions.some(([key])=>key===id))id='schedule';
  dashboard.querySelectorAll('[data-topic]').forEach(tab=>{const active=tab.dataset.topic===id;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1});
