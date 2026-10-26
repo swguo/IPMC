@@ -2,7 +2,7 @@
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=21',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=22',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -11,7 +11,7 @@ const store = {
   get(k, d){ try { return localStorage.getItem('traceqa.' + k) ?? d } catch(e){ return d } },
   set(k, v){ try { localStorage.setItem('traceqa.' + k, v) } catch(e){} }
 };
-const st = { q:'', sec:'all', slide:null, lang: 'en', cur:null, sheetTab: 'g2' };
+const st = { q:'', sec:'all', slide:null, lang: (['zh','en','bi'].includes(store.get('lang','bi'))?store.get('lang','bi'):'bi'), cur:null, sheetTab: 'g2' };
 const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const toks = () => st.q.toLowerCase().normalize('NFKC').split(/\s+/).filter(Boolean);
 
@@ -100,7 +100,7 @@ function renderDetail(id){
   st.cur = id;
   const arr = filtered(); const i = arr.findIndex(x => x.id === id);
   const prev = i > 0 ? arr[i-1] : null, next = i >= 0 && i < arr.length-1 ? arr[i+1] : null;
-  const zh = `<div class="lang-block"><div class="lang-label">中文 · 理解用</div><div class="prose">${it.hz}</div></div>`;
+  const zh = `<div class="lang-block"><div class="lang-label">中文 · 理解摘要</div><div class="prose">${it.hz}</div></div>`;
   const en = `<div class="lang-block"><div class="lang-label">English · 上台說這個</div><div class="prose">${it.he}</div></div>`;
   const body = st.lang === 'zh' ? zh : st.lang === 'en' ? en : en + zh;
   const navBtn = (x, dir) => x ? `<button type="button" data-id="${x.id}"><small>${dir}</small>${x.id}｜${esc(st.lang==='en'?x.te:x.tz)}</button>` : '<span></span>';
