@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {createKeyStore,KEY_SLOT,validateQuestion,validateEvaluation,parseCompletion} from '../site/trainer-core.js';
+const records=new Map();const storage={getItem:k=>records.get(k)||null,setItem:(k,v)=>records.set(k,v),removeItem:k=>records.delete(k)};
+const password='test-password-for-unit-checks';const secret='sk-unit-test-not-a-real-key-123456789';
+const first=await createKeyStore(password,storage);assert.equal(await first.load(),'');await first.save(secret);const record=storage.getItem(KEY_SLOT);assert.ok(!record.includes(secret));assert.equal(await first.load(),secret);const iv=JSON.parse(record).iv;await first.save(secret);assert.notEqual(iv,JSON.parse(storage.getItem(KEY_SLOT)).iv);
+first.destroy();const second=await createKeyStore(password,storage);assert.equal(await second.load(),secret);const wrong=await createKeyStore('wrong-password',storage);await assert.rejects(()=>wrong.load(),/SAVED_KEY/);wrong.destroy();
+const damaged=JSON.parse(storage.getItem(KEY_SLOT));damaged.ciphertext=damaged.ciphertext.slice(0,-6)+'AAAAAA';storage.setItem(KEY_SLOT,JSON.stringify(damaged));const corrupt=await createKeyStore(password,storage);await assert.rejects(()=>corrupt.load(),/SAVED_KEY/);corrupt.remove();corrupt.destroy();assert.equal(storage.getItem(KEY_SLOT),null);
+assert.deepEqual(validateQuestion({question:'A question?',keywords:['one']}),{question:'A question?',keywords:['one']});assert.throws(()=>validateQuestion({question:'',keywords:[]}));
+const evaluation={score:80,relevance:90,accuracy:80,completeness:70,matched:['one'],missing:['two'],unsupported:[],feedback_zh:'回饋',better_answer_en:'Answer'};assert.equal(validateEvaluation(evaluation).score,80);assert.throws(()=>validateEvaluation({...evaluation,score:120}));assert.throws(()=>parseCompletion({choices:[{message:{refusal:'Cannot respond'}}]}));assert.deepEqual(parseCompletion({choices:[{message:{content:JSON.stringify(evaluation)}}]}),evaluation);
+console.log('PASS: encrypted local key round-trip, distinct IVs, wrong-password/tamper detection, removal, schema validation and refusal handling.');

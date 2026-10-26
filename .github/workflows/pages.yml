@@ -19,7 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate public bundle
-        run: node tests/validate.mjs
+        run: |
+          node tests/validate.mjs
+          node tests/trainer-core.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
