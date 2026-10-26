@@ -2,7 +2,7 @@
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=19',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=20',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -11,7 +11,7 @@ const store = {
   get(k, d){ try { return localStorage.getItem('traceqa.' + k) ?? d } catch(e){ return d } },
   set(k, v){ try { localStorage.setItem('traceqa.' + k, v) } catch(e){} }
 };
-const st = { q:'', sec:'all', slide:null, lang: (['zh','en','bi'].includes(store.get('lang','bi'))?store.get('lang','bi'):'bi'), cur:null, sheetTab: 'g2' };
+const st = { q:'', sec:'all', slide:null, lang: 'en', cur:null, sheetTab: 'g2' };
 const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const toks = () => st.q.toLowerCase().normalize('NFKC').split(/\s+/).filter(Boolean);
 
@@ -57,7 +57,7 @@ function tags(it){
 function renderPages(){
   const has = new Set(D.items.flatMap(i => i.slides));
   const el = $('#pages'); el.innerHTML = '';
-  for (let p = 1; p <= 39; p++){
+  for (let p = 1; p <= 41; p++){
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = p; b.disabled = !has.has(p);
     b.setAttribute('aria-pressed', st.slide === p);
@@ -137,9 +137,9 @@ function renderWelcome(){
 function sheetTabs(){
   const G = st.lang === 'en' ? D.guide_en : D.guide_zh;
   const name = st.lang === 'en'
-    ? {g2:'Clarify',g3:'Question types',g4:'Need time',g1:'5 steps',g5:'Slide map',ph:'Phrases',g6:'Ending'}
-    : {g2:'確認技巧',g3:'問題類型',g4:'需要時間',g1:'五步驟',g5:'頁碼對照',ph:'萬用句',g6:'結束 Q&A'};
-  const order = ['g2','g3','g4','g1','g5','ph','g6'];
+    ? {g2:'Clarify',g3:'Question types',g4:'Need time',g1:'5 steps',g5:'Slide map',ph:'Phrases',g6:'Ending',lookup:'Indexes',refs:'References',source:'Version'}
+    : {g2:'確認技巧',g3:'問題類型',g4:'需要時間',g1:'五步驟',g5:'頁碼對照',ph:'萬用句',g6:'結束 Q&A',lookup:'索引',refs:'參考資料',source:'版本'};
+  const order = ['g2','g3','g4','g1','g5','ph','g6','lookup','refs','source'];
   $('#shTitle').textContent = st.lang === 'en' ? "When you don't understand" : '聽不懂時怎麼辦';
   $('#shTabs').innerHTML = order.map(k => `<button class="chip" type="button" role="tab" data-k="${k}" aria-pressed="${st.sheetTab===k}" aria-selected="${st.sheetTab===k}">${name[k]}</button>`).join('');
   const html = st.sheetTab === 'ph' ? (st.lang === 'en' ? D.ph_en : D.ph_zh) : (G.find(g => g.id === st.sheetTab) || G[1]).html;
@@ -147,6 +147,7 @@ function sheetTabs(){
   decorate($('#shBody'));
   $('#shTabs').querySelectorAll('button').forEach(b => b.onclick = () => { st.sheetTab = b.dataset.k; sheetTabs(); $('#shBody').scrollTop = 0; });
 }
+$('#shBody').addEventListener('click',ev=>{const a=ev.target.closest('a[href^="#q"]');if(!a)return;const key=a.getAttribute('href').slice(1).toUpperCase();if(byId[key]){ev.preventDefault();closeSheet();renderDetail(key)}});
 function openSheet(){ sheetTabs(); $('#sheet').hidden = false; $('#scrim').hidden = false; $('.app').inert=true;$('#fab').inert=true;$('#shBody').scrollTop=0;$('#shClose').focus(); }
 function closeSheet(){ $('#sheet').hidden = true; $('#scrim').hidden = true; $('.app').inert=false;$('#fab').inert=false;$('#fab').focus(); }
 
