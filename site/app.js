@@ -1,4 +1,4 @@
-import {mountQA} from './qa.js?v=20';
+import {mountQA} from './qa.js?v=21';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, headerObserver;
@@ -57,10 +57,10 @@ function initializeTopics(){
 }
 function chooseSpeechPage(value){
  const select=$('[data-speech-select]');if(!select)return;
- const page=Number(value);const safe=Number.isInteger(page)&&page>=0&&page<=39?page:0;
+ const count=select.options.length-1;const page=Number(value);const safe=Number.isInteger(page)&&page>=0&&page<=count?page:0;
  select.value=String(safe);dashboard.querySelectorAll('[data-speech-page]').forEach(el=>el.hidden=el.dataset.speechPage!==String(safe));
- $('#speech-progress').textContent=safe===0?'使用說明':safe+' / 39';
- dashboard.querySelector('[data-speech-step="-1"]').disabled=safe===0;dashboard.querySelector('[data-speech-step="1"]').disabled=safe===39;
+ $('#speech-progress').textContent=safe===0?'使用說明':safe+' / '+count;
+ dashboard.querySelector('[data-speech-step="-1"]').disabled=safe===0;dashboard.querySelector('[data-speech-step="1"]').disabled=safe===count;
  storage('trip-speech-page',String(safe));
 }
 function chooseRoute(id){
