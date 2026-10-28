@@ -1,4 +1,4 @@
-import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=26';
+import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=27';
 const API='https://api.openai.com/v1/';
 const textOf=html=>{const div=document.createElement('div');div.innerHTML=html;return div.textContent.replace(/\s+/g,' ').trim()};
 export function mountTrainer(host,D,password,onActivity=()=>{}){
@@ -31,7 +31,7 @@ export function mountTrainer(host,D,password,onActivity=()=>{}){
  function showReference(){if(!current)return;$('#train-reference').textContent=current.reference;$('#train-reference-title').textContent=current.item.id+' · '+current.item.te+' · Slides '+current.item.slides.join(', ')}
  async function nextQuestion(token){
   if(!key)throw Error('NO_KEY');const category=$('#train-category').value;
-  const requested=$('#train-target').value;const pool=D.items.filter(i=>category==='all'||i.sec===category);if(!pool.length)throw Error('FORMAT');
+  const requested=$('#train-target').value;const pool=D.items.filter(i=>category==='all'||(category==='focus'&&i.practice_focus)||i.sec===category);if(!pool.length)throw Error('FORMAT');
   let item=requested==='random'?null:pool.find(i=>i.id===requested);if(!item){const rest=pool.filter(i=>i.id!==lastId);const candidates=rest.length?rest:pool;item=candidates[Math.floor(Math.random()*candidates.length)]}
   status('正在產生新的英文問法…');
   const reference=textOf(item.he);
@@ -70,7 +70,8 @@ export function mountTrainer(host,D,password,onActivity=()=>{}){
  async function saveKey(){if(busy||recording||disposed)return;const value=$('#train-api-key').value.trim();$('#train-api-key').value='';if(!/^sk-[A-Za-z0-9_-]{16,}$/.test(value)){status('請輸入有效格式的OpenAI API金鑰（sk-開頭）。',true);return}
   busy=true;controls();const token=epoch;try{if($('#train-remember').checked){await keyStore.save(value);active(token);$('#train-key-state').textContent='已設定 · 僅本瀏覽器加密保存'}else{keyStore.remove();$('#train-key-state').textContent='已設定 · 僅本次解鎖使用'}key=value;status('金鑰已設定。選擇主題後按「開始／下一題」。')}catch(e){if(e.name!=='AbortError')status('無法加密儲存金鑰，請確認瀏覽器允許本機儲存；金鑰未儲存。',true)}finally{if(token===epoch&&!disposed){busy=false;controls()}}
  }
- const fillTargets=()=>{const category=$('#train-category').value;const select=$('#train-target');select.replaceChildren(new Option('隨機題目','random'));for(const item of D.items.filter(i=>category==='all'||i.sec===category))select.add(new Option(item.id+' · '+item.tz,item.id))};
+ const fillTargets=()=>{const category=$('#train-category').value;const select=$('#train-target');select.replaceChildren(new Option('隨機題目','random'));for(const item of D.items.filter(i=>category==='all'||(category==='focus'&&i.practice_focus)||i.sec===category))select.add(new Option(item.id+' · '+item.tz,item.id))};
+ $('#train-category').add(new Option('★ 加強：資料分工與類別崩潰','focus'));
  for(const section of D.sections)$('#train-category').add(new Option(section.id+' · '+section.nz,section.id));fillTargets();
  $('#train-category').addEventListener('change',fillTargets);
  $('#train-save-key').addEventListener('click',()=>saveKey());

@@ -2,7 +2,7 @@
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=26',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=27',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -48,6 +48,7 @@ function hl(text){
 }
 function tags(it){
   let h = '';
+  if (it.practice_focus) h += `<span class="tag w">★ 加強練習</span>`;
   if (it.slides.length) h += `<span class="tag p">p.${it.slides.join('·')}</span>`;
   if (it.marks.includes('⚠')) h += `<span class="tag w">⚠ 先確認</span>`;
   if (it.marks.includes('🛡')) h += `<span class="tag g">🛡 防守</span>`;
