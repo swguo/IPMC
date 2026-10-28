@@ -1,4 +1,4 @@
-import {parseCompletion} from './trainer-core.js?v=29';
+import {parseCompletion} from './trainer-core.js?v=30';
 export function routingSchema(ids){return {type:'object',properties:{question_zh:{type:'string'},keywords:{type:'array',items:{type:'string'}},candidate_ids:{type:'array',items:{type:'string',enum:ids}},reason_zh:{type:'string'}},required:['question_zh','keywords','candidate_ids','reason_zh'],additionalProperties:false}}
 export function validateRouting(value,ids){
  const strings=a=>Array.isArray(a)&&a.length<=8&&a.every(x=>typeof x==='string'&&x.trim().length>0&&x.length<=160);

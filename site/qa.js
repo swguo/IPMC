@@ -1,9 +1,9 @@
-import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=29';
+import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=30';
 // Interactive UI adapted from the user-provided TRACE Q&A page.
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup,options={}){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=29',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=30',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -51,6 +51,7 @@ function hl(text){
 }
 function tags(it){
   let h = '';
+  if (it.has_supplement) h += `<span class="tag p">＋補充</span>`;
   if (it.practice_focus) h += `<span class="tag w">★ 加強練習</span>`;
   if (it.slides.length) h += `<span class="tag p">p.${it.slides.join('·')}</span>`;
   if (it.marks.includes('⚠')) h += `<span class="tag w">⚠ 先確認</span>`;
@@ -141,9 +142,9 @@ function renderWelcome(){
 function sheetTabs(){
   const G = st.lang === 'en' ? D.guide_en : D.guide_zh;
   const name = st.lang === 'en'
-    ? {g2:'Clarify',g3:'Question types',g4:'Need time',g1:'5 steps',g5:'Slide map',ph:'Phrases',g6:'Ending',lookup:'Indexes',refs:'References',source:'Version'}
-    : {g2:'確認技巧',g3:'問題類型',g4:'需要時間',g1:'五步驟',g5:'頁碼對照',ph:'萬用句',g6:'結束 Q&A',lookup:'索引',refs:'參考資料',source:'版本'};
-  const order = ['g2','g3','g4','g1','g5','ph','g6','lookup','refs','source'];
+    ? {g2:'Clarify',g3:'Question types',g4:'Need time',g1:'5 steps',g5:'Slide map',ph:'Phrases',g6:'Ending',lookup:'Indexes',refs:'References',source:'Version',supplement:'New notes'}
+    : {g2:'確認技巧',g3:'問題類型',g4:'需要時間',g1:'五步驟',g5:'頁碼對照',ph:'萬用句',g6:'結束 Q&A',lookup:'索引',refs:'參考資料',source:'版本',supplement:'補充見解'};
+  const order = ['g2','g3','g4','g1','g5','ph','g6','lookup','refs','source','supplement'];
   $('#shTitle').textContent = st.lang === 'en' ? "When you don't understand" : '聽不懂時怎麼辦';
   $('#shTabs').innerHTML = order.map(k => `<button class="chip" type="button" role="tab" data-k="${k}" aria-pressed="${st.sheetTab===k}" aria-selected="${st.sheetTab===k}">${name[k]}</button>`).join('');
   const html = st.sheetTab === 'ph' ? (st.lang === 'en' ? D.ph_en : D.ph_zh) : (G.find(g => g.id === st.sheetTab) || G[1]).html;
