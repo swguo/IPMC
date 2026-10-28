@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 const site=new URL('../site/',import.meta.url);
 const names=await readdir(site);
-assert.deepEqual(names.sort(),['app.js','index.html','qa.css','qa.js','style.css','sw.js','trainer-core.js','trainer.js','vault.json']);
+assert.deepEqual(names.sort(),['app.js','index.html','qa-voice.js','qa.css','qa.js','style.css','sw.js','trainer-core.js','trainer.js','vault.json']);
 const vault=JSON.parse(await readFile(new URL('vault.json',site),'utf8'));
 assert.equal(vault.version,1);assert.equal(vault.iterations,600000);
 assert.equal(Buffer.from(vault.salt,'base64').length,16);assert.equal(Buffer.from(vault.iv,'base64').length,12);

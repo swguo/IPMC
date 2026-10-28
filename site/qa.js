@@ -1,8 +1,9 @@
+import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=29';
 // Interactive UI adapted from the user-provided TRACE Q&A page.
 // Question data and answer markup are supplied only after vault decryption.
-export function mountQA(host,D,markup){
+export function mountQA(host,D,markup,options={}){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=28',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=29',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -11,11 +12,12 @@ const store = {
   get(k, d){ try { return localStorage.getItem('traceqa.' + k) ?? d } catch(e){ return d } },
   set(k, v){ try { localStorage.setItem('traceqa.' + k, v) } catch(e){} }
 };
-const st = { q:'', sec:'all', slide:null, lang: (['zh','en','bi'].includes(store.get('lang','bi'))?store.get('lang','bi'):'bi'), cur:null, sheetTab: 'g2' };
+const st = { q:'', sec:'all', slide:null, lang: (['zh','en','bi'].includes(store.get('lang','bi'))?store.get('lang','bi'):'bi'), cur:null, sheetTab: 'g2',voiceActive:false,voiceIds:null };
 const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const toks = () => st.q.toLowerCase().normalize('NFKC').split(/\s+/).filter(Boolean);
 
 function matches(it, ts){
+  if(st.voiceActive)return matchesVoice(it,ts,st.voiceIds);
   return ts.every(t => it.search.includes(t) || it.id.toLowerCase() === t || (/^\d+$/.test(t) && it.slides.includes(+t)));
 }
 function score(it, ts){
@@ -34,6 +36,7 @@ function filtered(){
     (st.sec === 'all' || it.sec === st.sec) &&
     (st.slide == null || it.slides.includes(st.slide)) &&
     matches(it, ts));
+  if(st.voiceActive&&st.voiceIds?.size){const order=[...st.voiceIds];arr.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));return arr}
   if (ts.length) arr = arr.map(it => [it, score(it, ts)]).sort((a,b) => b[1]-a[1]).map(x => x[0]);
   return arr;
 }
@@ -70,7 +73,7 @@ function renderPages(){
 function renderList(){
   const arr = filtered();
   const ts = toks();
-  $('#count').textContent = `${arr.length} 題` + (st.slide ? ` · 第 ${st.slide} 頁` : '') + (ts.length ? ` · 搜尋「${st.q.trim()}」` : '');
+  $('#count').textContent = `${arr.length} 題`+(st.voiceActive?' · AI／語音篩選':'') + (st.slide ? ` · 第 ${st.slide} 頁` : '') + (ts.length ? ` · 搜尋「${st.q.trim()}」` : '');
   if (!arr.length){
     $('#list').innerHTML = `<div class="empty">找不到符合的題目。<br>試試英文關鍵字、頁碼，或先用「聽不懂？」確認對方的問題。</div>`;
     return;
@@ -189,9 +192,9 @@ function markHits(roots){
       f.innerHTML = esc(n.nodeValue).replace(re, m => '<mark class="hit">' + m + '</mark>'); n.replaceWith(...f.childNodes); });
   });
 }
-$('#q').addEventListener('input', e => { st.q = e.target.value; $('#clear').hidden = !st.q; renderList(); });
+$('#q').addEventListener('input', e => { st.voiceActive=false;st.voiceIds=null;$('#voice-filter').hidden=true;st.q = e.target.value; $('#clear').hidden = !st.q; renderList(); });
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter'){ const f = filtered()[0]; if (f){ renderDetail(f.id); e.target.blur(); } } });
-$('#clear').onclick = () => { $('#q').value = ''; st.q = ''; $('#clear').hidden = true; renderList(); $('#q').focus(); };
+$('#clear').onclick = () => { st.voiceActive=false;st.voiceIds=null;$('#voice-filter').hidden=true;$('#q').value = ''; st.q = ''; $('#clear').hidden = true; renderList(); $('#q').focus(); };
 $('#list').addEventListener('click', e => { const r = e.target.closest('.row'); if (r) renderDetail(r.dataset.id); });
 root.querySelectorAll('.seg button').forEach(b => b.onclick = () => setLang(b.dataset.lang));
 $('#fab').onclick = openSheet; $('#shClose').onclick = closeSheet; $('#scrim').onclick = closeSheet;
@@ -202,11 +205,19 @@ root.addEventListener('keydown', e => {
   if (e.key === '/' && root.activeElement !== $('#q')){ e.preventDefault(); $('#q').focus(); }
 });
 
+const voiceFilter=document.createElement('div');voiceFilter.id='voice-filter';voiceFilter.className='voice-filter';voiceFilter.hidden=true;
+const voiceLabel=document.createElement('span');voiceLabel.id='voice-filter-label';voiceFilter.append(voiceLabel);
+const voiceView=document.createElement('button');voiceView.type='button';voiceView.textContent='中英問題';voiceView.addEventListener('click',()=>voice.show());voiceFilter.append(voiceView);
+const voiceClear=document.createElement('button');voiceClear.type='button';voiceClear.textContent='清除AI篩選';voiceClear.addEventListener('click',clearVoiceFilter);voiceFilter.append(voiceClear);$('#count').after(voiceFilter);
+function clearVoiceFilter(){st.voiceActive=false;st.voiceIds=null;st.q='';st.sec='all';st.slide=null;$('#q').value='';$('#clear').hidden=true;voiceFilter.hidden=true;renderChips();renderPages();renderList()}
+function applyVoiceFilter(result,useCandidates){st.voiceActive=true;st.voiceIds=useCandidates?new Set(result.candidate_ids):null;st.sec='all';st.slide=null;st.q=result.keywords.join(' ');$('#q').value=st.q;$('#clear').hidden=!st.q;voiceLabel.textContent=useCandidates&&result.candidate_ids.length?'AI候選：'+result.candidate_ids.join('、'):'關鍵字（任一詞符合）';voiceFilter.hidden=false;closeDetail();renderWelcome();renderChips();renderPages();renderList();}
+const voice=mountVoiceLookup(root,D,{api:options.api,onApply:applyVoiceFilter,onClear:clearVoiceFilter,onSettings:options.onSettings,onActivity:options.onActivity});
+
 renderPages(); setLang(st.lang);
 const h = '';
 if (byId[h]) renderDetail(h);
 else { renderWelcome(); if (window.matchMedia('(min-width: 900px)').matches) $('#pane').classList.add('open'); }
 
-return {pause(){if(wake)wake.release().catch(()=>{});}};
+return {pause(){voice.pause();$('#sheet').hidden=true;$('#scrim').hidden=true;if(wake)wake.release().catch(()=>{});},destroy(){voice.destroy();if(wake)wake.release().catch(()=>{});}};
 
 }

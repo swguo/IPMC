@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {routingSchema,validateRouting,matchesVoice} from '../site/qa-voice.js';
+const ids=['Q5','Q18','Q34','Q35'];
+const value={question_zh:'高召回率是否可能誤導？',keywords:['recall','precision','recall'],candidate_ids:['Q35','Q35'],reason_zh:'候選，並非保證。'};
+assert.deepEqual(validateRouting(value,ids).candidate_ids,['Q35']);assert.deepEqual(validateRouting(value,ids).keywords,['recall','precision']);
+assert.throws(()=>validateRouting({...value,candidate_ids:['Q999']},ids));assert.throws(()=>validateRouting({...value,question_zh:''},ids));assert.throws(()=>validateRouting({...value,keywords:['']},ids));
+assert.deepEqual(routingSchema(ids).properties.candidate_ids.items.enum,ids);
+const a={id:'Q35',search:'recall class collapse precision'},b={id:'Q18',search:'hospital data retrieval pool'};
+assert.ok(matchesVoice(a,['some paraphrase'],new Set(['Q35'])));assert.equal(matchesVoice(b,['hospital'],new Set(['Q35'])),false);
+assert.ok(matchesVoice(a,['unmatched','recall'],null));assert.equal(matchesVoice(b,['recall','precision'],null),false);assert.ok(matchesVoice(b,[],null));
+console.log('PASS: routing schema, valid IDs, duplicate removal, semantic candidates, OR keyword fallback and empty-filter handling.');

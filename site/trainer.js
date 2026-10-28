@@ -1,4 +1,4 @@
-import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=28';
+import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=29';
 const API='https://api.openai.com/v1/';
 const textOf=html=>{const div=document.createElement('div');div.innerHTML=html;return div.textContent.replace(/\s+/g,' ').trim()};
 export function mountTrainer(host,D,password,onActivity=()=>{}){
@@ -11,13 +11,13 @@ export function mountTrainer(host,D,password,onActivity=()=>{}){
  const controls=()=>{if(disposed)return;host.querySelectorAll('[data-train-action]').forEach(b=>b.disabled=initializing||busy||recording);$('#train-stop').disabled=!recording;$('#train-record').disabled=busy||recording||!current||!key;$('#train-evaluate').disabled=busy||recording||!current||!key;$('#train-replay').disabled=busy||recording||!current;$('#train-answer').disabled=busy||recording;$('#train-start').disabled=initializing||busy||recording;$('#train-setting-fields').disabled=initializing||busy||recording};
  const fail=err=>{if(err.name==='AbortError')return;const messages={NO_KEY:'請先設定OpenAI API金鑰。',OFFLINE:'AI鍛鍊需要連線；離線仍可使用QA速查。',FORMAT:'AI回傳格式不完整，請重試；此次API呼叫仍可能計費。',MIC:'無法使用麥克風，請允許錄音或在下方輸入回答。',EMPTY_AUDIO:'未收到錄音，請重新錄製或改用文字。',EMPTY_TRANSCRIPT:'未辨識到回答，請重錄或手動輸入。',NO_RECORDING:'此瀏覽器不支援錄音，請改用文字回答。',AUTH:'API金鑰無效或無權限，請檢查設定。',LIMIT:'API額度或速率受限，請檢查OpenAI帳戶計費與用量。',MODEL:'找不到模型或沒有存取權，請檢查模型設定。',NETWORK:'無法連到OpenAI，請檢查網路與瀏覽器連線限制。',TIMEOUT:'API回應逾時，請稍後重試。',API:'OpenAI服務暫時無法完成請求，請稍後重試。'};status(messages[err.message]||'操作未完成，請重試或檢查設定。',true)};
  async function run(fn){if(busy||recording||disposed)return;busy=true;controls();const token=epoch;onActivity();try{await fn(token)}catch(e){fail(e)}finally{if(!disposed&&token===epoch){busy=false;controls();onActivity()}}}
- async function request(path,body,token,form=false,format='json'){
+ async function request(path,body,token,form=false,format='json',externalSignal){
   active(token);if(!key)throw Error('NO_KEY');if(!navigator.onLine)throw Error('OFFLINE');
-  const abort=new AbortController();pending.add(abort);let timedOut=false;
+  const abort=new AbortController();const cancel=()=>abort.abort();if(externalSignal?.aborted)throw new DOMException('Stopped','AbortError');externalSignal?.addEventListener('abort',cancel,{once:true});pending.add(abort);let timedOut=false;
   const timer=setTimeout(()=>{timedOut=true;abort.abort()},120000);
   try{let response;try{response=await fetch(API+path,{method:'POST',headers:{Authorization:'Bearer '+key,...(form?{}:{'Content-Type':'application/json'})},body:form?body:JSON.stringify(body),signal:abort.signal,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'})}catch(e){if(e.name==='AbortError'){if(timedOut)throw Error('TIMEOUT');throw e}throw Error('NETWORK')}
    active(token);if(!response.ok){if([401,403].includes(response.status))throw Error('AUTH');if(response.status===429)throw Error('LIMIT');if(response.status===404)throw Error('MODEL');throw Error('API')}const value=await (format==='blob'?response.blob():response.json());active(token);return value;
-  }finally{clearTimeout(timer);pending.delete(abort)}
+  }finally{clearTimeout(timer);pending.delete(abort);externalSignal?.removeEventListener('abort',cancel)}
  }
  const model=id=>$(id).value.trim();
  async function complete(name,schema,system,content,token){const response=await request('chat/completions',{model:model('#train-text-model'),messages:[{role:'system',content:system},{role:'user',content:JSON.stringify(content)}],response_format:{type:'json_schema',json_schema:{name,strict:true,schema}},max_completion_tokens:2200},token);const value=parseCompletion(response);active(token);return value}
@@ -87,5 +87,5 @@ export function mountTrainer(host,D,password,onActivity=()=>{}){
  host.addEventListener('input',onActivity);host.addEventListener('pointerdown',onActivity);
  busy=true;controls();status('正在準備本機加密金鑰設定…');
  const ready=(async()=>{try{let local;try{local=window.localStorage}catch{local={getItem(){return null},setItem(){throw Error('STORAGE')},removeItem(){}}}keyStore=await createKeyStore(password,local);password='';if(disposed){keyStore.destroy();return}try{key=await keyStore.load();if(disposed){key='';return}$('#train-key-state').textContent=key?'已設定 · 已解鎖本機加密金鑰':'尚未設定API金鑰';status(key?'已載入本機金鑰，準備開始練習。':'請展開API設定並輸入自己的金鑰。')}catch{status('本機金鑰無法以目前旅程密碼解鎖，請重新設定金鑰。',true)}}catch{status('本機加密設定無法初始化，請重新整理。',true)}finally{if(!disposed){initializing=false;busy=false;controls()}}})();
- return {ready,pause,destroy(){pause();disposed=true;key='';password='';current=null;history.length=0;keyStore?.destroy();keyStore=null;$('#train-api-key').value='';$('#train-answer').value='';$('#train-feedback').replaceChildren()}};
+ return {ready,pause,api:{async configured(){await ready;return !disposed&&Boolean(key)},models(){return {text:model('#train-text-model'),transcription:model('#train-stt-model')}},async request(path,body,{signal,form=false}={}){await ready;if(disposed)throw new DOMException('Stopped','AbortError');if(!['chat/completions','audio/transcriptions'].includes(path))throw Error('API');return request(path,body,epoch,form,'json',signal)}},destroy(){pause();disposed=true;key='';password='';current=null;history.length=0;keyStore?.destroy();keyStore=null;$('#train-api-key').value='';$('#train-answer').value='';$('#train-feedback').replaceChildren()}};
 }
