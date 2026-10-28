@@ -1,6 +1,6 @@
 // Only encrypted data and public app assets are cached. Bump on each release.
-const CACHE='travel-v27';
-const ASSETS=['./','./index.html','./style.css?v=27','./app.js?v=27','./vault.json','./qa.js?v=27','./qa.css?v=27','./trainer.js?v=27','./trainer-core.js?v=27'];
+const CACHE='travel-v28';
+const ASSETS=['./','./index.html','./style.css?v=28','./app.js?v=28','./vault.json','./qa.js?v=28','./qa.css?v=28','./trainer.js?v=28','./trainer-core.js?v=28'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('travel-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',event=>{

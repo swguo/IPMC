@@ -1,4 +1,4 @@
-import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=27';
+import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=28';
 const API='https://api.openai.com/v1/';
 const textOf=html=>{const div=document.createElement('div');div.innerHTML=html;return div.textContent.replace(/\s+/g,' ').trim()};
 export function mountTrainer(host,D,password,onActivity=()=>{}){
@@ -71,7 +71,7 @@ export function mountTrainer(host,D,password,onActivity=()=>{}){
   busy=true;controls();const token=epoch;try{if($('#train-remember').checked){await keyStore.save(value);active(token);$('#train-key-state').textContent='已設定 · 僅本瀏覽器加密保存'}else{keyStore.remove();$('#train-key-state').textContent='已設定 · 僅本次解鎖使用'}key=value;status('金鑰已設定。選擇主題後按「開始／下一題」。')}catch(e){if(e.name!=='AbortError')status('無法加密儲存金鑰，請確認瀏覽器允許本機儲存；金鑰未儲存。',true)}finally{if(token===epoch&&!disposed){busy=false;controls()}}
  }
  const fillTargets=()=>{const category=$('#train-category').value;const select=$('#train-target');select.replaceChildren(new Option('隨機題目','random'));for(const item of D.items.filter(i=>category==='all'||(category==='focus'&&i.practice_focus)||i.sec===category))select.add(new Option(item.id+' · '+item.tz,item.id))};
- $('#train-category').add(new Option('★ 加強：資料分工與類別崩潰','focus'));
+ $('#train-category').add(new Option('★ 我的加強題（'+D.items.filter(i=>i.practice_focus).length+'題）','focus'));
  for(const section of D.sections)$('#train-category').add(new Option(section.id+' · '+section.nz,section.id));fillTargets();
  $('#train-category').addEventListener('change',fillTargets);
  $('#train-save-key').addEventListener('click',()=>saveKey());
