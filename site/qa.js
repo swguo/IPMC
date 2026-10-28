@@ -1,9 +1,9 @@
-import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=30';
+import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=31';
 // Interactive UI adapted from the user-provided TRACE Q&A page.
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup,options={}){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=30',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=31',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
@@ -106,7 +106,7 @@ function renderDetail(id){
   const arr = filtered(); const i = arr.findIndex(x => x.id === id);
   const prev = i > 0 ? arr[i-1] : null, next = i >= 0 && i < arr.length-1 ? arr[i+1] : null;
   const zh = `<div class="lang-block"><div class="lang-label">中文 · 理解摘要</div><div class="prose">${it.hz}</div></div>`;
-  const en = `<div class="lang-block"><div class="lang-label">English · 上台說這個</div><div class="prose">${it.he}</div></div>`;
+  const en = `<div class="lang-block"><div class="lang-label">English · 看圖、說明、結論</div><div class="prose">${it.he}</div></div>`;
   const body = st.lang === 'zh' ? zh : st.lang === 'en' ? en : en + zh;
   const navBtn = (x, dir) => x ? `<button type="button" data-id="${x.id}"><small>${dir}</small>${x.id}｜${esc(st.lang==='en'?x.te:x.tz)}</button>` : '<span></span>';
   $('#paneIn').innerHTML = `<button class="back" type="button" id="back">‹ 回到列表</button>
@@ -132,7 +132,7 @@ function renderWelcome(){
       <div class="step"><b>1 · 聽</b><span>抓 2–3 個關鍵字</span><em>寫在紙上或打進搜尋</em></div>
       <div class="step"><b>2 · 停</b><span>停 2–3 秒</span><em>"That's a good question."</em></div>
       <div class="step"><b>3 · 確認</b><span>說出關鍵字確認</span><em>"You're asking about X, right?"</em></div>
-      <div class="step"><b>4 · 回答</b><span>翻頁＋一句結論</span><em>用投影片上的現象說明，少念數字</em></div>
+      <div class="step"><b>4 · 回答</b><span>翻頁 → 說明 → 結論</span><em>說出圖表重點，不逐一念數字</em></div>
       <div class="step"><b>5 · 收尾</b><span>感謝＋未來或論文</span><em>"Does that answer your question?"</em></div>
     </div>
     <p class="count">左邊輸入關鍵字或點頁碼找題目。聽不懂時，按右下角「聽不懂？」。</p></div>`;
