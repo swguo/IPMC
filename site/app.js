@@ -1,5 +1,5 @@
-import {mountTrainer} from './trainer.js?v=37';
-import {mountQA} from './qa.js?v=37';
+import {mountTrainer} from './trainer.js?v=38';
+import {mountQA} from './qa.js?v=38';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, trainerController, headerObserver;
@@ -17,7 +17,7 @@ function resetTimer(){clearTimeout(inactive);if(!dashboard.hidden) inactive=setT
 function storage(key,value){try{if(value===undefined)return localStorage.getItem(key);localStorage.setItem(key,value)}catch{return null}}
 function updateCheckProgress(){dashboard.querySelectorAll('[data-check-progress]').forEach(el=>{const checks=[...el.closest('.card').querySelectorAll('[data-check]')];el.textContent=`已完成 ${checks.filter(check=>check.checked).length} / ${checks.length} 項`})}
 function chooseDay(day){dashboard.querySelectorAll('[data-day]').forEach(el=>{const selected=el.dataset.day===day;el.setAttribute('aria-selected',String(selected));el.tabIndex=selected?0:-1});dashboard.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==day)}
-const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['speech','演講稿'],['qa','QA速查'],['training','QA鍛鍊'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['transfer','轉機手冊'],['esim','上網'],['checklist','旅行清單'],['conference-checklist','會議清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
+const topicDefinitions=[['schedule','每日行程'],['talk','我的報告'],['speech','演講稿'],['qa','QA速查'],['training','QA鍛鍊'],['tickets','交通票券'],['hotel','住宿'],['metro','機場地鐵'],['transfer','轉機手冊'],['customs','入境與海關'],['esim','上網'],['checklist','旅行清單'],['conference-checklist','會議清單'],['contacts','聯絡資訊'],['notes','完整筆記']];
 function setTopicMenu(expanded,focusPanel=false){
  const nav=$('#topic-menu'),toggle=$('#topic-menu-toggle');if(!nav||!toggle)return;
  nav.hidden=!expanded;toggle.setAttribute('aria-expanded',String(expanded));toggle.textContent=expanded?'收起選單 ▴':'顯示選單 ▾';

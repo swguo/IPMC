@@ -1,9 +1,9 @@
-import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=37';
+import {mountVoiceLookup,matchesVoice} from './qa-voice.js?v=38';
 // Interactive UI adapted from the user-provided TRACE Q&A page.
 // Question data and answer markup are supplied only after vault decryption.
 export function mountQA(host,D,markup,options={}){
 const root=host.attachShadow({mode:'open'});
-const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=37',import.meta.url).href;root.append(sheet);
+const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./qa.css?v=38',import.meta.url).href;root.append(sheet);
 const container=document.createElement('div');container.className='qa-root';container.append(markup.cloneNode(true));root.append(container);
 if(window.matchMedia('(min-width:900px)').matches)root.querySelector('.filter-options').open=true;
 const $ = s => root.querySelector(s);
