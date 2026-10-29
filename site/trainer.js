@@ -1,4 +1,4 @@
-import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=38';
+import {createKeyStore,questionSchema,evaluationSchema,validateQuestion,validateEvaluation,parseCompletion} from './trainer-core.js?v=39';
 const API='https://api.openai.com/v1/';
 const textOf=html=>{const div=document.createElement('div');div.innerHTML=html;return div.textContent.replace(/\s+/g,' ').trim()};
 export function mountTrainer(host,D,password,onActivity=()=>{}){
