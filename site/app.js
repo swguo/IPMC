@@ -1,5 +1,5 @@
-import {mountTrainer} from './trainer.js?v=45';
-import {mountQA} from './qa.js?v=45';
+import {mountTrainer} from './trainer.js?v=46';
+import {mountQA} from './qa.js?v=46';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, trainerController, headerObserver;
