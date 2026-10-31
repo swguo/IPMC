@@ -1,4 +1,4 @@
-import {createExpenseStore,cents,totals,categories} from './expenses-core.js?v=47';
+import {createExpenseStore,cents,totals,categories} from './expenses-core.js?v=48';
 export function mountExpenses(host,seed,password,onActivity){const $=s=>host.querySelector(s);let items=[],store,dead=false,busy=true,pendingDelete=null,urls=new Set();const statusNames={paid:'已付款',prepaid:'預付款待核對',closed:'交易關閉／不計入'};const money=n=>'¥'+(n/100).toFixed(2);const message=s=>$('#expense-status').textContent=s;
 function disable(value){busy=value;host.querySelectorAll('input,select,button').forEach(e=>e.disabled=value)}
 function node(tag,text){const e=document.createElement(tag);e.textContent=text;return e}

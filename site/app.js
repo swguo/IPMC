@@ -1,6 +1,6 @@
-import {mountExpenses} from './expenses.js?v=47';
-import {mountTrainer} from './trainer.js?v=47';
-import {mountQA} from './qa.js?v=47';
+import {mountExpenses} from './expenses.js?v=48';
+import {mountTrainer} from './trainer.js?v=48';
+import {mountQA} from './qa.js?v=48';
 const $ = (s) => document.querySelector(s);
 const gate = $('#gate'), dashboard = $('#dashboard');
 let inactive, toastTimer, qaController, trainerController, headerObserver, expenseController;
