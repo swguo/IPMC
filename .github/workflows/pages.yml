@@ -23,6 +23,7 @@ jobs:
           node tests/validate.mjs
           node tests/trainer-core.mjs
           node tests/qa-voice-core.mjs
+          node tests/expenses-core.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
